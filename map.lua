@@ -73,6 +73,9 @@ function ldtk.onEntity(entity)
             x = entity.x * map.x_scale,
             y = entity.y * map.y_scale
         }
+    elseif entity.id == "Trampoline" then
+        physics.collision_world:add(entity, entity.x * map.x_scale, entity.y * map.y_scale, entity.width * map.x_scale,
+            entity.height * map.y_scale)
     end
 end
 

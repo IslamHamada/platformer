@@ -10,7 +10,8 @@ function player.load(map)
     player.width = 50
     player.height = 50
 
-    player.movement_speed = 600
+    player.climbing_speed = 600
+    player.movement_speed = 500
     player.jump_speed = 700
 
     player.x_vel = 0
@@ -20,10 +21,10 @@ function player.load(map)
     player.vel_loss_rate = 5
     -- player.omega_loss_rate = 2
 
-    player.max_climbing_stamina = 1
+    player.max_climbing_stamina = 0.75
     player.climbing_stamina = player.max_climbing_stamina
 
-    player.max_active_anchor_distance = 400
+    player.max_active_anchor_distance = 300
     player.swing_speed = 3
     player.omega = 0
     player.swing_angle = 0
@@ -31,6 +32,8 @@ function player.load(map)
     player.anchor_dist = -1
 
     player.reset_tween = nil
+
+    player.trampoline_speed = 1000
 end
 
 function player.update(dt, map)
@@ -67,7 +70,7 @@ function player.update(dt, map)
     end
 
     if love.keyboard.isDown("e") and (player.touching_wall_right or player.touching_wall_left) and player.climbing_stamina > 0 then
-        player.y_vel = -player.movement_speed
+        player.y_vel = -player.climbing_speed
         player.climbing_stamina = player.climbing_stamina - dt
         player.is_climbing = true
     else
@@ -134,6 +137,10 @@ function player.update(dt, map)
             if not player.reset_tween then
                 player.reset_tween = tween.new(0.5, player, { x = map.spawnPoint.x, y = map.spawnPoint.y })
             end
+        elseif col.other.id == "Trampoline" then
+            if col.normal.y == -1 then
+                player.y_vel = -player.trampoline_speed
+            end
         end
     end
 
@@ -182,6 +189,8 @@ function player.collisionFilter(item, other)
         return "slide"
     elseif other.id == "Trap" then
         return "cross"
+    elseif other.id == "Trampoline" then
+        return "slide"
     end
 end
 
