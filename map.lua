@@ -2,6 +2,8 @@ local ldtk = require("libraries.ldtk-love.ldtk")
 local globals = require("globals")
 local physics = require("physics")
 local bump = require("libraries.bump.bump")
+local sprites = require("sprites")
+local Trampoline = require("classes.Trampoline")
 
 local map = {}
 
@@ -9,6 +11,7 @@ function map.load(player)
     map.currentLevel = nil
     map.currentLayers = {}
     map.collision_boxes = {}
+    map.trampolines = {}
     map.x_scale = 1
     map.y_scale = 1
     map.nextLevelTrigger = nil
@@ -19,7 +22,9 @@ function map.load(player)
 end
 
 function map.update(dt)
-
+    for idx, trampoline in ipairs(map.trampolines) do
+        trampoline:update(dt)
+    end
 end
 
 function map.draw()
@@ -30,9 +35,16 @@ function map.draw()
     end
     love.graphics.pop()
 
+    for _, trampoline in ipairs(map.trampolines) do
+        trampoline:draw()
+    end
+
     -- for _, box in ipairs(map.collision_boxes) do
     --     love.graphics.rectangle("line", box.x, box.y, box.width, box.height)
     -- end
+
+    -- love.graphics.rectangle("line", map.nextLevelTrigger.x, map.nextLevelTrigger.y, map.nextLevelTrigger.width,
+    --     map.nextLevelTrigger.height)
 
     love.graphics.print(globals.width .. ", " .. globals.height, 10, 10)
 end
@@ -74,8 +86,12 @@ function ldtk.onEntity(entity)
             y = entity.y * map.y_scale
         }
     elseif entity.id == "Trampoline" then
-        physics.collision_world:add(entity, entity.x * map.x_scale, entity.y * map.y_scale, entity.width * map.x_scale,
+        -- physics.collision_world:add(entity, entity.x * map.x_scale, entity.y * map.y_scale, entity.width * map.x_scale,
+        --     entity.height * map.y_scale)
+        local trampoline = Trampoline:new(entity.x * map.x_scale, entity.y * map.y_scale, entity.width * map.x_scale,
             entity.height * map.y_scale)
+        table.insert(map.trampolines, trampoline)
+        physics.collision_world:add(trampoline, trampoline.x, trampoline.y, trampoline.width, trampoline.height)
     end
 end
 
@@ -87,6 +103,7 @@ function ldtk.onLevelLoaded(level)
     map.currentLayers = {}
     map.currentLevel = level
     map.collision_boxes = {}
+    map.trampolines = {}
     map.nextLevelTrigger = nil
     map.anchors = {}
     map.x_scale = globals.width / level.width
