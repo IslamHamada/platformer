@@ -3,7 +3,6 @@ local gameplay = require("gameplay")
 local game = {}
 
 function game.load()
-    love.graphics.setDefaultFilter("nearest", "nearest")
     gameplay.load()
 end
 
@@ -17,6 +16,10 @@ end
 
 function game.keypressed(key)
     gameplay.keypressed(key)
+end
+
+function game.gamepadpressed(joystick, button)
+    gameplay.gamepadpressed(joystick, button)
 end
 
 return game
