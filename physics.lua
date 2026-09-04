@@ -1,7 +1,7 @@
 local globals           = require "globals"
 local physics           = {}
 
-physics.gravity         = globals.height * 2
+physics.gravity         = globals.height * 3
 
 physics.collision_world = nil
 
