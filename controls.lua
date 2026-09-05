@@ -6,9 +6,13 @@ function controls.load()
     controls.bindings = {
         move_left  = { keys = { "a", "left" }, buttons = { "dpleft" }, axis = "leftx", axis_dir = -1, isDown = false, isPressed = false },
         move_right = { keys = { "d", "right" }, buttons = { "dpright" }, axis = "leftx", axis_dir = 1, isDown = false, isPressed = false },
-        jump       = { keys = { "space" }, buttons = { "a" }, isDown = false, isPressed = false },
+        jump       = { keys = { "space", "return" }, buttons = { "a" }, isDown = false, isPressed = false },
         hook       = { keys = { "k" }, buttons = { "righttrigger" }, isDown = false, isPressed = false },
-        climb      = { keys = { "j" }, buttons = { "lefttrigger" }, isDown = false, isPressed = false }
+        climb      = { keys = { "j" }, buttons = { "lefttrigger" }, isDown = false, isPressed = false },
+        down       = { keys = { "s", "down" }, buttons = { "dpdown" }, axis = "lefty", axis_dir = -1, isDown = false, isPressed = false },
+        up         = { keys = { "w", "up" }, buttons = { "dpup" }, axis = "lefty", axis_dir = 1, isDown = false, isPressed = false },
+        start      = { keys = { "escape" }, buttons = { "start" }, isDown = false, isPressed = false },
+        back       = { keys = { "backspace" }, buttons = { "b" }, isDown = false, isPressed = false }
     }
 
     controls.jump_buffer_time = 0.2
@@ -28,11 +32,18 @@ local function checkGamepadDown(joystick, button, axis_dir)
         elseif axis_dir == 1 then
             return axis_val > 0.3
         end
+    elseif button == "lefty" then
+        local axis_val = joystick:getGamepadAxis("lefty")
+        if axis_dir == -1 then
+            return axis_val < -0.3
+        elseif axis_dir == 1 then
+            return axis_val > 0.3
+        end
     end
     return joystick:isGamepadDown(button)
 end
 
-function controls.update(dt)
+function controls.update(dt, game)
     for action, val in pairs(controls.bindings) do
         local isDown = false
         for _, button in ipairs(val.keys) do
@@ -52,19 +63,21 @@ function controls.update(dt)
         controls.bindings[action].isDown = isDown
     end
 
-    if controls.jump_buffered then
-        controls.jump_buffer_timer = controls.jump_buffer_timer + dt
-        if controls.jump_buffer_timer > controls.jump_buffer_time then
-            controls.jump_buffered = false
-            controls.jump_buffer_timer = 0
-        else
-            controls.bindings.jump.isPressed = true
+    if game.state == "gameplay" then
+        if controls.jump_buffered then
+            controls.jump_buffer_timer = controls.jump_buffer_timer + dt
+            if controls.jump_buffer_timer > controls.jump_buffer_time then
+                controls.jump_buffered = false
+                controls.jump_buffer_timer = 0
+            else
+                controls.bindings.jump.isPressed = true
+            end
         end
     end
 end
 
 function controls.reset_isPresseds()
-    for action, list in pairs(controls.bindings) do
+    for action, _ in pairs(controls.bindings) do
         controls.bindings[action].isPressed = false
     end
 end

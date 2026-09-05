@@ -1,11 +1,12 @@
-local ldtk = require("libraries.ldtk-love.ldtk")
-local globals = require("globals")
-local physics = require("physics")
-local bump = require("libraries.bump.bump")
-local sprites = require("sprites")
+local ldtk       = require("libraries.ldtk-love.ldtk")
+local globals    = require("globals")
+local physics    = require("physics")
+local bump       = require("libraries.bump.bump")
+local sprites    = require("sprites")
 local Trampoline = require("classes.Trampoline")
+local saving     = require("saving")
 
-local map = {}
+local map        = {}
 
 function map.load(player)
     map.currentLevel = nil
@@ -18,7 +19,7 @@ function map.load(player)
     map.anchors = {}
     map.player = player
     ldtk:load("assets/map/world.ldtk")
-    ldtk:goTo(4)
+    ldtk:goTo(saving.data.progress.current_level)
 end
 
 function map.update(dt)
@@ -52,6 +53,15 @@ end
 function map.loadNextLevel()
     map.player.reset()
     ldtk:next()
+    saving.data.progress.current_level = saving.data.progress.current_level + 1
+    saving.save()
+end
+
+function map.newGame()
+    map.player.reset()
+    ldtk:goTo(1)
+    saving.data.progress.current_level = 1
+    saving.save()
 end
 
 function ldtk.onEntity(entity)

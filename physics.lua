@@ -11,6 +11,19 @@ function physics.applyVelocity(object, dt)
     return goalX, goalY
 end
 
+function physics.applyAngularVelocity(object, dt)
+    object.swing_angle = object.swing_angle + object.omega * dt
+end
+
+function physics.applyAcceleration(object, dt)
+    object.x_vel = object.x_vel + object.x_acc * dt
+    object.y_vel = object.y_vel + object.y_acc * dt
+end
+
+function physics.applyAngularAcceleration(object, dt)
+    object.omega = object.omega + object.alpha * dt
+end
+
 function physics.applyGravity(object, dt)
     object.y_vel = object.y_vel + physics.gravity * dt
 end
